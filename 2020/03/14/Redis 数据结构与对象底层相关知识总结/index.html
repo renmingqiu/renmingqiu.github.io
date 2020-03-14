@@ -79,14 +79,20 @@
 
 
 
-<meta name="description" content="进一步有进一步的欢喜">
-<meta property="og:type" content="website">
-<meta property="og:title" content="秋秋">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="@TOC    之前看到经常讨论Redis如何如何，自己完全没听说过这个东西，觉得还是有必要学习以下，就找了一些视频和学习资料开始学习，其中最好的资料就是黄建宏先生的《Redis 设计与实现》和其配套的Redis3.0版本的源码。这本书深入浅出地讲解了Redis，使我获益匪浅。到目前为止我大概看了一小半，将Redis的数据结构相关知识基本过了一遍，今天简单的总结一下。 什么是RedisRedis（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 数据结构与对象底层相关知识总结">
+<meta property="og:url" content="http://yoursite.com/2020/03/14/Redis%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1%E5%BA%95%E5%B1%82%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/index.html">
 <meta property="og:site_name" content="秋秋">
-<meta property="og:description" content="进一步有进一步的欢喜">
+<meta property="og:description" content="@TOC    之前看到经常讨论Redis如何如何，自己完全没听说过这个东西，觉得还是有必要学习以下，就找了一些视频和学习资料开始学习，其中最好的资料就是黄建宏先生的《Redis 设计与实现》和其配套的Redis3.0版本的源码。这本书深入浅出地讲解了Redis，使我获益匪浅。到目前为止我大概看了一小半，将Redis的数据结构相关知识基本过了一遍，今天简单的总结一下。 什么是RedisRedis（">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200314141418315.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200314161821643.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200314164042681.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2020-03-14T09:27:50.742Z">
+<meta property="article:modified_time" content="2020-03-14T09:27:50.779Z">
 <meta property="article:author" content="flying">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200314141418315.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70">
 
 
 
@@ -116,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/03/14/Redis 数据结构与对象底层相关知识总结/"/>
 
 
 
 
 
-  <title>秋秋</title>
+  <title>Redis 数据结构与对象底层相关知识总结 | 秋秋</title>
   
 
 
@@ -142,10 +148,7 @@
 
 
 
-<meta name="generator" content="Hexo 4.2.0"><link rel="stylesheet" href="\assets\css\APlayer.min.css" class="aplayer-style-marker">
-<script src="\assets\js\APlayer.min.js" class="aplayer-script-marker"></script>
-<script src="\assets\js\Meting.min.js" class="meting-script-marker"></script>
-</head>
+<meta name="generator" content="Hexo 4.2.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
@@ -154,8 +157,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -228,9 +230,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -260,9 +262,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/03/14/Redis%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1%E5%BA%95%E5%B1%82%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/" itemprop="url">Redis 数据结构与对象底层相关知识总结</a></h1>
+          <h1 class="post-title" itemprop="name headline">Redis 数据结构与对象底层相关知识总结</h1>
         
 
         <div class="post-meta">
@@ -312,9 +312,7 @@
       
 
       
-        
-          
-            <p>@<a href="Redis数据结构相关知识总结">TOC</a><br>    之前看到经常讨论Redis如何如何，自己完全没听说过这个东西，觉得还是有必要学习以下，就找了一些视频和学习资料开始学习，其中最好的资料就是黄建宏先生的《Redis 设计与实现》和其配套的Redis3.0版本的源码。这本书深入浅出地讲解了Redis，使我获益匪浅。<br>到目前为止我大概看了一小半，将Redis的数据结构相关知识基本过了一遍，今天简单的总结一下。</p>
+        <p>@<a href="Redis数据结构相关知识总结">TOC</a><br>    之前看到经常讨论Redis如何如何，自己完全没听说过这个东西，觉得还是有必要学习以下，就找了一些视频和学习资料开始学习，其中最好的资料就是黄建宏先生的《Redis 设计与实现》和其配套的Redis3.0版本的源码。这本书深入浅出地讲解了Redis，使我获益匪浅。<br>到目前为止我大概看了一小半，将Redis的数据结构相关知识基本过了一遍，今天简单的总结一下。</p>
 <h2 id="什么是Redis"><a href="#什么是Redis" class="headerlink" title="什么是Redis"></a>什么是Redis</h2><p>Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI C语言编写、<strong>支持网络、可基于内存亦可持久化的日志型、Key-Value数据库</strong>，并提供多种语言的API。</p>
 <h2 id="Redis的value类型简介"><a href="#Redis的value类型简介" class="headerlink" title="Redis的value类型简介"></a>Redis的value类型简介</h2><p>上面说到，Redis是Key-value型的数据库，在Redis中，<strong>所有Key都是字符串类型（REDIS_STRING）的</strong>，而Value的值就多种多样了。共有五种类型，分别为<strong>string(字符串)、list(链表)、set(集合)、zset(sorted set –有序集合)和hash（哈希类型）</strong>。对于这五种类型，在底层又有6种数据结构的支持，分别为<strong>简单动态字符串（SDS），双端链表，字典，跳跃表，整数集合和压缩列表</strong>。</p>
 <p>下面我们来一一介绍这六种数据结构</p>
@@ -393,8 +391,6 @@
 <p>集合类型对象用整数集合或字典作为底层实现；</p>
 <p>有序集合类型对象用压缩列表或者跳跃表作为底层实现。</p>
 
-          
-        
       
     </div>
     
@@ -411,139 +407,28 @@
       
 
       
-
-      
-
       
       
-        <div class="post-eof"></div>
+
       
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/01/%E7%94%A8%20Hexo%20+%20github%20%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%8E%86%E7%A8%8B%E6%80%BB%E7%BB%93%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E6%9C%AC%E5%9C%B0%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0%E8%87%B3%20github%20%E4%B8%8A%E5%A6%82%E6%9E%9C%E8%A6%81%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="flying">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="秋秋">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/03/01/%E7%94%A8%20Hexo%20+%20github%20%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%8E%86%E7%A8%8B%E6%80%BB%E7%BB%93%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E6%9C%AC%E5%9C%B0%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0%E8%87%B3%20github%20%E4%B8%8A%E5%A6%82%E6%9E%9C%E8%A6%81%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F/" itemprop="url">用 Hexo + github 搭建个人博客的历程总结（二）：本地博客上传至 github 上如果要输入密码怎么办？</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-01T23:54:57+08:00">
-                2020-03-01
-              </time>
+              <a href="/2020/03/01/%E7%94%A8%20Hexo%20+%20github%20%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%8E%86%E7%A8%8B%E6%80%BB%E7%BB%93%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E6%9C%AC%E5%9C%B0%E5%8D%9A%E5%AE%A2%E4%B8%8A%E4%BC%A0%E8%87%B3%20github%20%E4%B8%8A%E5%A6%82%E6%9E%9C%E8%A6%81%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F/" rel="next" title="用 Hexo + github 搭建个人博客的历程总结（二）：本地博客上传至 github 上如果要输入密码怎么办？">
+                <i class="fa fa-chevron-left"></i> 用 Hexo + github 搭建个人博客的历程总结（二）：本地博客上传至 github 上如果要输入密码怎么办？
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <p>利用Hexo 和 github 搭建博客的人有很多，总结资料也有很多，其中我主要参考的是这一篇文章hexo+github搭建个人博客(超详细教程)，讲得问题不大，效果比较好。但即使如此我仍然遇到了很多问题，这次说一个要说的问题是<strong>本地博客要部署到github上要输入的密码是什么的问题</strong>。</p>
-<p>当我们在本地设置好博客内容后，假如要将博客部署到github上，需要在git命令行里输入：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>等待一段时间后，git命令行界面可能会出现以下内容：<br><img src="https://img-blog.csdnimg.cn/20200301233026449.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p>提示我们要输入在github上的用户名，输入好用户名后敲击回车。可能会弹出如下界面：<br><img src="https://img-blog.csdnimg.cn/20200301234153244.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>要我们输入“密码”，而这个密码是我的个人主页的密码。<br>这个描述一开始让我摸不清头脑，但后来我才知道，这时候我们需要填入的是密钥SSH。</p>
-<p>那么如何获得这个密钥SSH呢？<br><strong>首先在GitHub页面的右上角头像中找到Settings</strong><br><img src="https://img-blog.csdnimg.cn/2020030123385153.png" alt="在这里插入图片描述"><br><strong>在Settings中找到 SSH and GPG keys项</strong><br><img src="https://img-blog.csdnimg.cn/20200301233925375.png" alt="在这里插入图片描述"><br><strong>然后选择 New SSH key</strong><br><img src="https://img-blog.csdnimg.cn/2020030123400377.png" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20200301234010188.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><strong>在Title中加上你对这个密钥的命名，然后再Key中把你的Key粘贴进去。</strong></p>
-<p>至于具体怎么得到这个key，详情请看这一篇博文<a href="https://www.jianshu.com/p/b46e4036b216" target="_blank" rel="noopener">Windows下生成 github ssh key</a>。</p>
-<p>添加好key后点击“Add SSH key”<br><strong>之后会弹出一串字符，那一串字符就是我们要输在这里的密码</strong><br><img src="https://img-blog.csdnimg.cn/20200301234902549.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQzNDc5NTQw,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -553,262 +438,11 @@
   </article>
 
 
-    
-      
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/27/%E7%94%A8%20Hexo%20+%20github%20%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%8E%86%E7%A8%8B%E6%80%BB%E7%BB%93%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E8%A7%A3%E5%86%B3%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9F%9F%E5%90%8D%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="flying">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="秋秋">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/27/%E7%94%A8%20Hexo%20+%20github%20%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%8E%86%E7%A8%8B%E6%80%BB%E7%BB%93%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A%E8%A7%A3%E5%86%B3%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9F%9F%E5%90%8D%E5%A4%B1%E6%95%88%E9%97%AE%E9%A2%98/" itemprop="url">用 Hexo + github 搭建个人博客的历程总结（一）：解决自定义域名失效问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-27T00:05:56+08:00">
-                2020-02-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>利用Hexo 和 github 搭建博客的人有很多，总结资料也有很多，其中我主要参考的是这一篇文章<a href="https://blog.csdn.net/AinUser/article/details/77609180?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task" target="_blank" rel="noopener">hexo+github搭建个人博客(超详细教程)</a>，讲得问题不大，效果比较好。但即使如此我仍然遇到了很多问题，这次先说一个刚刚遇到的问题，就是<strong>自定义域名失效问题</strong>。<br>我们每次将博客从本地部署到服务器上时，都需要命令<code>hexo d</code>，但是可能会执行完命令后再输入个人网址后出现404，这时候很可能就是你的自定义域名失效了。<br><strong>这一问题的解决方法如下：</strong></p>
-<p>1.安装插件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-cname --save</span><br></pre></td></tr></table></figure>
-<p>如果使用过npm淘宝镜像的话，将上述命令的npm改为cnpm即可</p>
-<p>2.之后在_config.yml中添加一条</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Plugins:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">hexo-generator-cname</span></span><br></pre></td></tr></table></figure>
-<p>就可以了~</p>
-<p>本人博客网址为<a href="https://www.feibai.ren/" target="_blank" rel="noopener">秋秋</a></p>
-
-          
-        
+    <div class="post-spread">
       
     </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/26/hello_world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="flying">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="秋秋">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/26/hello_world/" itemprop="url">hello_world</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-02-26T14:30:08+08:00">
-                2020-02-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>前几天心血来潮想要搞个博客玩玩，由于自己还比较菜，所以用的还是Hexo+github搭建博客。这中间踩了很多坑，也借鉴了很多其他博客，终于基本算是搭建好了~~后续我会进一步丰富我的博客内容的。</p>
-
-    <div id="aplayer-zbzPvltx" class="aplayer aplayer-tag-marker meting-tag-marker"
-         data-id="542691179" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#555"
-    ></div>
-<p>博客网址(<a href="https://www.feibai.ren/" target="_blank" rel="noopener">https://www.feibai.ren/</a>)</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-  </section>
-
-  
 
 
           </div>
@@ -816,6 +450,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -836,8 +474,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -883,6 +530,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是Redis"><span class="nav-number">1.</span> <span class="nav-text">什么是Redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis的value类型简介"><span class="nav-number">2.</span> <span class="nav-text">Redis的value类型简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层数据结构一：简单动态字符串（SDS）"><span class="nav-number">3.</span> <span class="nav-text">底层数据结构一：简单动态字符串（SDS）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层数据结构二：双端链表"><span class="nav-number">4.</span> <span class="nav-text">底层数据结构二：双端链表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层数据结构三：字典"><span class="nav-number">5.</span> <span class="nav-text">底层数据结构三：字典</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层数据结构四：跳跃表"><span class="nav-number">6.</span> <span class="nav-text">底层数据结构四：跳跃表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层数据结构五：整数集合"><span class="nav-number">7.</span> <span class="nav-text">底层数据结构五：整数集合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层数据结构六：压缩列表"><span class="nav-number">8.</span> <span class="nav-text">底层数据结构六：压缩列表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#底层数据结构和上层Value五种类型的对应关系"><span class="nav-number">9.</span> <span class="nav-text">底层数据结构和上层Value五种类型的对应关系</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -1043,6 +706,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
